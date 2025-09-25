@@ -1,0 +1,33 @@
+# Bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual envs
+venv/
+.venv/
+ENV/
+env/
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python packaging/build
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Logs / DB / runtime files
+*.log
+*.sqlite3
+alerts_sent.json
+
+# Secrets
+.env
+.env.*
