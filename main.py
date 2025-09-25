@@ -40,19 +40,22 @@ def check_flight(route):
     currency = route.get("currency", "USD")
 
     while True:
-        print(f"🔍 Checking {origin} → {destination} on {date} in {currency}...")
-
+        print(f"\n🔍 Checking {origin} → {destination} on {date} in {currency}...")
         flight = get_lowest_price(origin, destination, date, currency)
+
         if not flight:
             print("❌ No flights found.")
             choice = input("Do you want to search for another flight? (y/n): ").strip().lower()
             return choice == 'y'
 
-        route_key = f"{origin}-{destination}-{date}-{flight['price']}"
+        # Include recipient email in the route key to handle multiple users
+        route_key = f"{recipient_email}-{origin}-{destination}-{date}-{flight['price']}"
         price_value = float(flight["price"].split()[0])
 
-        # If price is below threshold
-        if price_value <= threshold:
+        # Check if alert was already sent for this user & price
+        if was_alert_sent(route_key):
+            print(f"⚠️ Alert already sent to {recipient_email} for {origin}-{destination} on {date} at {flight['price']}.")
+        elif price_value <= threshold:
             # Send email
             subject = f"✈️ Flight Alert: {flight['route']} at {flight['price']}"
             body = (
@@ -72,25 +75,21 @@ def check_flight(route):
             print(f"✅ Alert sent to {recipient_email} for {route_key}!")
             record_alert_sent(route_key)
 
-            # Ask if user wants to search another flight immediately
-            choice = input("Do you want to search for another flight? (y/n): ").strip().lower()
-            return choice == 'y'
-
-        # Price is above threshold
         else:
             print(f"💸 Cheapest price {flight['price']} is above threshold {threshold} {currency}.")
-            choice = input("Price above threshold. Enter 'c' to change threshold, 's' to skip, or 'r' to recheck later: ").strip().lower()
-            if choice == 'c':
-                threshold = float(input("Enter new price threshold: ").strip())
-            elif choice == 's':
-                print(f"⏩ Skipping route {origin} → {destination} for now.")
-                return True
-            elif choice == 'r':
-                print(f"⏳ Will recheck this route after {INTERVAL/60} minutes.")
-                time.sleep(INTERVAL)
-            else:
-                print("❌ Invalid choice. Skipping route.")
-                return True
+
+        # Ask next action
+        choice = input("Enter 'c' to change threshold, 's' to skip, 'r' to recheck, or 'n' for new flight: ").strip().lower()
+        if choice == 'c':
+            threshold = float(input("Enter new price threshold: ").strip())
+        elif choice in ['s', 'n']:
+            return True  # go back to main loop for new route or skip
+        elif choice == 'r':
+            print(f"⏳ Will recheck this route after {INTERVAL/60} minutes.")
+            time.sleep(INTERVAL)
+        else:
+            print("❌ Invalid choice. Skipping route.")
+            return True
 
 if __name__ == "__main__":
     print("🚀 Flight price monitor started.")
@@ -102,5 +101,4 @@ if __name__ == "__main__":
         if not continue_loop:
             print("⏹ Stopping further flight checks as requested by user.")
             break
-        # Only wait if user chose 'r' or price was above threshold
-        print("\n")  # spacing for readabili
+        print("\n")  # spacing for readability
