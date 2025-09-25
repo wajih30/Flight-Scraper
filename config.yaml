@@ -1,12 +1,8 @@
+# config.yaml
+
 scheduler:
   interval_minutes: 30   # how often to check flight prices
 
 email:
-  from: wajihurrehman2001@gmail.com     # sender (same as your Gmail in .env -> SMTP_USER)
-  to: wajih.work2001@gmail.com          # recipient (could be yourself or another inbox)
-
-routes:
-  - origin: "JFK"          # IATA airport code (New York JFK)
-    destination: "LAX"     # IATA airport code (Los Angeles)
-    date: "2025-10-01"     # YYYY-MM-DD format (Amadeus requires this format)
-    threshold: 250         # alert me if price <= $250
+  from: wajihurrehman2001@gmail.com   # sender email (must match SMTP_USER in .env)
+ 
